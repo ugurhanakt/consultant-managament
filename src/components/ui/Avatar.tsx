@@ -3,7 +3,7 @@ import { cn } from '../../utils/cn'
 interface AvatarProps {
   initials: string
   color?: string
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
 }
 
@@ -15,6 +15,7 @@ export const Avatar = ({ initials, color = '#9333ea', size = 'md', className }: 
         'w-7 h-7 text-xs': size === 'sm',
         'w-9 h-9 text-sm': size === 'md',
         'w-12 h-12 text-base': size === 'lg',
+        'w-16 h-16 text-xl': size === 'xl',
       },
       className
     )}

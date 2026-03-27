@@ -1,10 +1,12 @@
+import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/appStore'
 import { Avatar } from '../components/ui/Avatar'
 import { Badge } from '../components/ui/Badge'
-import { Mail } from 'lucide-react'
+import { Mail, ArrowRight } from 'lucide-react'
 
 export const ConsultantsPage = () => {
   const { consultants, plans } = useAppStore()
+  const navigate = useNavigate()
 
   return (
     <div className="p-6 space-y-4">
@@ -16,7 +18,11 @@ export const ConsultantsPage = () => {
         {consultants.filter((c) => c.isActive).map((consultant) => {
           const totalPlans = plans.filter((p) => p.consultantId === consultant.id).length
           return (
-            <div key={consultant.id} className="bg-primary-900/30 border border-primary-800/30 rounded-2xl p-5 hover:border-primary-700/50 transition-colors">
+            <div
+              key={consultant.id}
+              onClick={() => navigate(`/consultants/${consultant.id}`)}
+              className="bg-primary-900/30 border border-primary-800/30 rounded-2xl p-5 hover:border-primary-600/50 hover:bg-primary-800/20 transition-all cursor-pointer group"
+            >
               <div className="flex items-center gap-3 mb-4">
                 <Avatar initials={consultant.avatarInitials} color={consultant.colorTag} size="lg" />
                 <div>
@@ -33,7 +39,10 @@ export const ConsultantsPage = () => {
                   <Badge key={skill}>{skill}</Badge>
                 ))}
               </div>
-              <p className="text-xs text-primary-500">{totalPlans} toplam plan</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-primary-500">{totalPlans} toplam plan</p>
+                <ArrowRight size={14} className="text-primary-600 group-hover:text-primary-400 transition-colors" />
+              </div>
             </div>
           )
         })}

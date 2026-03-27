@@ -123,14 +123,14 @@ const ClientCombobox = ({
                 <button
                   type="button"
                   onClick={handleCreate}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-primary-300 hover:bg-primary-800/50 transition-colors border-t border-primary-800/30"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-violet-300 hover:bg-violet-800/30 transition-colors border-t border-primary-800/30"
                 >
-                  <span className="w-5 h-5 rounded-md flex items-center justify-center bg-primary-700/60 shrink-0">
-                    <Plus size={12} className="text-primary-300" />
+                  <span className="w-5 h-5 rounded-md flex items-center justify-center bg-violet-600/70 shrink-0">
+                    <Plus size={12} className="text-white" />
                   </span>
                   <span>
-                    <span className="text-primary-500">Yeni ekle: </span>
-                    <span className="font-medium text-primary-200">"{query.trim()}"</span>
+                    <span className="text-violet-400 font-medium">+ Yeni müşteri ekle: </span>
+                    <span className="font-semibold text-violet-200">"{query.trim()}"</span>
                   </span>
                 </button>
               </li>

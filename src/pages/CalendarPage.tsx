@@ -1,5 +1,6 @@
-import { Plus, Filter, X } from 'lucide-react'
+import { Plus, Filter, X, Download } from 'lucide-react'
 import { useState } from 'react'
+import { addDays, endOfWeek } from 'date-fns'
 import { useAppStore } from '../store/appStore'
 import { WeeklyCalendar } from '../components/calendar/WeeklyCalendar'
 import { PlanModal } from '../components/modals/PlanModal'
@@ -7,10 +8,20 @@ import { PlanDetailModal } from '../components/modals/PlanDetailModal'
 import { Button } from '../components/ui/Button'
 import { Avatar } from '../components/ui/Avatar'
 import { cn } from '../utils/cn'
+import { exportWeeklyPlansToExcel } from '../utils/exportUtils'
+import toast from 'react-hot-toast'
 
 export const CalendarPage = () => {
-  const { consultants, openAddModal, filteredConsultantIds, setFilteredConsultants } = useAppStore()
+  const { consultants, plans, clients, currentWeekStart, openAddModal, filteredConsultantIds, setFilteredConsultants } = useAppStore()
   const [showFilter, setShowFilter] = useState(false)
+
+  const handleExport = () => {
+    const weekEnd = endOfWeek(currentWeekStart, { weekStartsOn: 1 })
+    const weekStart = currentWeekStart
+    const weekPlans = plans.filter((p) => p.date >= weekStart.toISOString().slice(0, 10) && p.date <= weekEnd.toISOString().slice(0, 10))
+    exportWeeklyPlansToExcel(weekPlans, consultants, clients, weekStart, weekEnd)
+    toast.success('Excel dosyası indirildi!')
+  }
 
   const toggleConsultant = (id: string) => {
     if (filteredConsultantIds.includes(id)) {
@@ -45,6 +56,13 @@ export const CalendarPage = () => {
                 {filteredConsultantIds.length}
               </span>
             )}
+          </button>
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm border border-primary-800/40 text-primary-400 hover:border-primary-700/50 hover:text-primary-200 transition-all"
+          >
+            <Download size={14} />
+            Excel
           </button>
           <Button onClick={() => openAddModal()}>
             <Plus size={16} />

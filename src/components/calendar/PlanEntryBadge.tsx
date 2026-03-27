@@ -30,9 +30,9 @@ export const PlanEntryBadge = ({ plan, client, onClick }: Props) => {
       onClick={onClick}
       className={cn(
         'w-full min-w-0 text-left rounded-lg px-2 py-1.5 text-xs transition-all duration-150 group',
-        'border hover:scale-[1.02] hover:shadow-lg',
+        'border hover:shadow-lg',
         config.bg,
-        'border-current/20 hover:brightness-110',
+        'border-current/20 hover:brightness-110 hover:shadow-primary-900/50',
         isOpaque && 'opacity-40 line-through'
       )}
     >

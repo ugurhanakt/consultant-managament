@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { Users, TrendingUp, TrendingDown, DollarSign } from 'lucide-react'
+import { Users, TrendingUp, TrendingDown, DollarSign, Download } from 'lucide-react'
 import { useAppStore } from '../../store/appStore'
+import { format } from 'date-fns'
+import { tr } from 'date-fns/locale'
 import {
   calcConsultantUtilization,
   calcTeamUtilization,
@@ -11,6 +13,8 @@ import {
 } from '../../utils/utilizationCalculator'
 import { ConsultantCard } from './ConsultantCard'
 import { cn } from '../../utils/cn'
+import { exportUtilizationToExcel } from '../../utils/exportUtils'
+import toast from 'react-hot-toast'
 
 type Period = 'week' | 'month'
 
@@ -44,7 +48,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 }
 
 export const UtilizationDashboard = () => {
-  const { consultants, plans, teams } = useAppStore()
+  const { consultants, plans, clients, teams } = useAppStore()
   const [period, setPeriod] = useState<Period>('week')
 
   const range: DateRange = period === 'week' ? getThisWeekRange() : getThisMonthRange()
@@ -73,11 +77,28 @@ export const UtilizationDashboard = () => {
     return { team, tu }
   })
 
+  const handleExport = () => {
+    const utilizations = allUtilizations.map(({ util }) => util)
+    const periodLabel = period === 'week'
+      ? `Bu Hafta (${format(range.start, 'd MMM', { locale: tr })} – ${format(range.end, 'd MMM yyyy', { locale: tr })})`
+      : `Bu Ay (${format(range.start, 'MMMM yyyy', { locale: tr })})`
+    exportUtilizationToExcel(utilizations, consultants, clients, plans, periodLabel)
+    toast.success('Utilizasyon raporu indirildi!')
+  }
+
   return (
     <div className="space-y-6">
       {/* Period selector */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-primary-100">Utilizasyon Dashboard</h1>
+        <div className="flex items-center gap-3">
+        <button
+          onClick={handleExport}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm border border-primary-800/40 text-primary-400 hover:border-primary-700/50 hover:text-primary-200 transition-all"
+        >
+          <Download size={14} />
+          Rapor İndir
+        </button>
         <div className="flex bg-primary-900/60 border border-primary-800/40 rounded-xl p-1 gap-1">
           {(['week', 'month'] as Period[]).map((p) => (
             <button
@@ -93,6 +114,7 @@ export const UtilizationDashboard = () => {
               {p === 'week' ? 'Bu Hafta' : 'Bu Ay'}
             </button>
           ))}
+        </div>
         </div>
       </div>
 
