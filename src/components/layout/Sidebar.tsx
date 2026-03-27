@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { CalendarDays, LayoutDashboard, Users, Settings, Sparkles } from 'lucide-react'
+import { CalendarDays, LayoutDashboard, Users, Settings, Sparkles, FolderKanban } from 'lucide-react'
 import { cn } from '../../utils/cn'
 
 const navItems = [
-  { to: '/',          icon: CalendarDays,    label: 'Takvim' },
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/consultants', icon: Users,         label: 'Danışmanlar' },
+  { to: '/',            icon: CalendarDays,    label: 'Takvim' },
+  { to: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/projects',    icon: FolderKanban,    label: 'Projeler' },
+  { to: '/consultants', icon: Users,           label: 'Danışmanlar' },
 ]
 
 export const Sidebar = () => (
