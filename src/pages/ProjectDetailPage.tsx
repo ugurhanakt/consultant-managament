@@ -19,7 +19,7 @@ const STATUS_CONFIG: Record<ProjectStatus, { label: string; badge: string }> = {
 export const ProjectDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { projects, clients, consultants, openProjectModal, deleteProject } = useAppStore()
+  const { projects, consultants, openProjectModal, deleteProject } = useAppStore()
 
   const project = projects.find((p) => p.id === id)
 
@@ -33,8 +33,6 @@ export const ProjectDetailPage = () => {
       </div>
     )
   }
-
-  const client = clients.find((c) => c.id === project.clientId)
   const assignedConsultants = consultants.filter((c) => project.assignedConsultantIds.includes(c.id))
   const statusCfg = STATUS_CONFIG[project.status]
 
@@ -72,17 +70,16 @@ export const ProjectDetailPage = () => {
                   {statusCfg.label}
                 </span>
               </div>
-              {client && (
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span
-                    className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold text-white shrink-0"
-                    style={{ backgroundColor: client.colorAccent }}
-                  >
-                    {client.logoInitials}
-                  </span>
-                  <span className="text-sm text-primary-400">{client.name}</span>
-                  <span className="text-primary-700">·</span>
-                  <span className="text-xs text-primary-500">{client.industry}</span>
+              {project.sectors.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {project.sectors.map((sector) => (
+                    <span
+                      key={sector}
+                      className="text-[10px] px-2 py-0.5 rounded-full bg-primary-800/50 border border-primary-700/30 text-primary-400"
+                    >
+                      {sector}
+                    </span>
+                  ))}
                 </div>
               )}
               {project.description && (

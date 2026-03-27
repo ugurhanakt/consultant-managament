@@ -18,7 +18,7 @@ const STATUS_CONFIG: Record<ProjectStatus, { label: string; dot: string; badge: 
 
 export const ProjectsPage = () => {
   const navigate = useNavigate()
-  const { projects, clients, consultants, openProjectModal } = useAppStore()
+  const { projects, consultants, openProjectModal } = useAppStore()
 
   return (
     <div className="p-6 space-y-4">
@@ -64,7 +64,6 @@ export const ProjectsPage = () => {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {projects.map((project) => {
-            const client = clients.find((c) => c.id === project.clientId)
             const assignedConsultants = consultants.filter((c) => project.assignedConsultantIds.includes(c.id))
             const statusCfg = STATUS_CONFIG[project.status]
 
@@ -87,16 +86,10 @@ export const ProjectsPage = () => {
                       <p className="text-sm font-bold text-primary-100 group-hover:text-white transition-colors truncate">
                         {project.name}
                       </p>
-                      {client && (
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span
-                            className="w-3.5 h-3.5 rounded-sm flex items-center justify-center text-[8px] font-bold text-white shrink-0"
-                            style={{ backgroundColor: client.colorAccent }}
-                          >
-                            {client.logoInitials[0]}
-                          </span>
-                          <span className="text-[10px] text-primary-500 truncate">{client.name}</span>
-                        </div>
+                      {project.sectors.length > 0 && (
+                        <p className="text-[10px] text-primary-500 truncate mt-0.5">
+                          {project.sectors.join(' · ')}
+                        </p>
                       )}
                     </div>
                   </div>

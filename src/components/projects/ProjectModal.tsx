@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
-import { X, Plus, Trash2, Sparkles, Check, ChevronDown, Target } from 'lucide-react'
+import { X, Sparkles, Check, Target } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAppStore } from '../../store/appStore'
-import { Project, ProjectStatus } from '../../types/project'
+import { Project, ProjectStatus, SECTORS } from '../../types/project'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
@@ -20,23 +20,21 @@ const ALL_SKILLS = [
   'MES', 'TM', 'Proje Yönetimi',
 ]
 
-const STATUS_OPTIONS: { value: ProjectStatus; label: string; color: string }[] = [
-  { value: 'active',    label: '🟢 Aktif',      color: 'text-emerald-400' },
-  { value: 'planned',   label: '🔵 Planlandı',  color: 'text-blue-400' },
-  { value: 'on-hold',   label: '🟡 Beklemede',  color: 'text-amber-400' },
-  { value: 'completed', label: '⚫ Tamamlandı', color: 'text-primary-500' },
+const STATUS_OPTIONS: { value: ProjectStatus; label: string }[] = [
+  { value: 'active',    label: '🟢 Aktif' },
+  { value: 'planned',   label: '🔵 Planlandı' },
+  { value: 'on-hold',   label: '🟡 Beklemede' },
+  { value: 'completed', label: '⚫ Tamamlandı' },
 ]
 
 const PROJECT_COLORS = ['#9333ea','#0ea5e9','#10b981','#f59e0b','#ef4444','#ec4899','#6b7280','#8b5cf6']
 
 export const ProjectModal = () => {
-  const { isProjectModalOpen, editingProject, closeProjectModal, addProject, updateProject, consultants, clients, addClient } = useAppStore()
-
+  const { isProjectModalOpen, editingProject, closeProjectModal, addProject, updateProject, consultants } = useAppStore()
   const isEdit = !!editingProject
 
-  // Form state
   const [name, setName] = useState('')
-  const [clientId, setClientId] = useState('')
+  const [sectors, setSectors] = useState<string[]>([])
   const [description, setDescription] = useState('')
   const [status, setStatus] = useState<ProjectStatus>('active')
   const [startDate, setStartDate] = useState('')
@@ -46,12 +44,11 @@ export const ProjectModal = () => {
   const [colorTag, setColorTag] = useState(PROJECT_COLORS[0])
   const [skillSearch, setSkillSearch] = useState('')
 
-  // Prefill on edit
   useEffect(() => {
     if (!isProjectModalOpen) return
     if (editingProject) {
       setName(editingProject.name)
-      setClientId(editingProject.clientId)
+      setSectors(editingProject.sectors)
       setDescription(editingProject.description)
       setStatus(editingProject.status)
       setStartDate(editingProject.startDate)
@@ -60,7 +57,7 @@ export const ProjectModal = () => {
       setAssignedIds(editingProject.assignedConsultantIds)
       setColorTag(editingProject.colorTag)
     } else {
-      setName(''); setClientId(''); setDescription('')
+      setName(''); setSectors([]); setDescription('')
       setStatus('active'); setStartDate(''); setEndDate('')
       setRequiredSkills([]); setAssignedIds([])
       setColorTag(PROJECT_COLORS[Math.floor(Math.random() * PROJECT_COLORS.length)])
@@ -68,37 +65,32 @@ export const ProjectModal = () => {
     setSkillSearch('')
   }, [isProjectModalOpen, editingProject])
 
-  // Danışman önerileri
   const suggestions = useMemo(
     () => suggestConsultantsForProject(requiredSkills, consultants, assignedIds),
     [requiredSkills, consultants, assignedIds]
   )
 
-  const toggleSkill = (skill: string) => {
-    setRequiredSkills((prev) =>
-      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
-    )
-  }
+  const toggleSector = (sector: string) =>
+    setSectors((prev) => prev.includes(sector) ? prev.filter((s) => s !== sector) : [...prev, sector])
 
-  const toggleAssign = (consultantId: string) => {
-    setAssignedIds((prev) =>
-      prev.includes(consultantId) ? prev.filter((id) => id !== consultantId) : [...prev, consultantId]
-    )
-  }
+  const toggleSkill = (skill: string) =>
+    setRequiredSkills((prev) => prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill])
+
+  const toggleAssign = (id: string) =>
+    setAssignedIds((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id])
 
   const filteredSkills = skillSearch
     ? ALL_SKILLS.filter((s) => s.toLowerCase().includes(skillSearch.toLowerCase()))
     : ALL_SKILLS
 
   const handleSave = () => {
-    if (!name.trim()) return toast.error('Proje adı gerekli')
-    if (!clientId) return toast.error('Müşteri seçiniz')
+    if (!name.trim()) return toast.error('Proje / Müşteri adı gerekli')
     if (!startDate) return toast.error('Başlangıç tarihi gerekli')
 
     const project: Project = {
       id: isEdit ? editingProject!.id : generateId(),
       name: name.trim(),
-      clientId,
+      sectors,
       description: description.trim(),
       status,
       startDate,
@@ -115,8 +107,6 @@ export const ProjectModal = () => {
   }
 
   if (!isProjectModalOpen) return null
-
-  const selectedClient = clients.find((c) => c.id === clientId)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -144,10 +134,10 @@ export const ProjectModal = () => {
           <div className="flex gap-3 items-end">
             <div className="flex-1">
               <Input
-                label="Proje Adı"
+                label="Proje / Müşteri Adı"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Proje adını girin..."
+                placeholder="örn. Arçelik A.Ş., MEM Solar..."
               />
             </div>
             <div className="shrink-0">
@@ -157,7 +147,8 @@ export const ProjectModal = () => {
                   <button
                     key={c}
                     onClick={() => setColorTag(c)}
-                    className={cn('w-6 h-6 rounded-full border-2 transition-all', colorTag === c ? 'border-white scale-110' : 'border-transparent')}
+                    className={cn('w-6 h-6 rounded-full border-2 transition-all',
+                      colorTag === c ? 'border-white scale-110' : 'border-transparent')}
                     style={{ backgroundColor: c }}
                   />
                 ))}
@@ -165,33 +156,48 @@ export const ProjectModal = () => {
             </div>
           </div>
 
-          {/* Müşteri + Durum */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-primary-300 mb-1.5">Müşteri</label>
-              <select
-                value={clientId}
-                onChange={(e) => setClientId(e.target.value)}
-                className="w-full bg-primary-900/60 border border-primary-700/50 text-primary-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500 transition-colors"
-              >
-                <option value="" className="bg-primary-900">Müşteri seç...</option>
-                {clients.map((c) => (
-                  <option key={c.id} value={c.id} className="bg-primary-900">{c.name}</option>
-                ))}
-              </select>
+          {/* Sektörler (çoktan seçmeli) */}
+          <div>
+            <label className="block text-xs font-medium text-primary-300 mb-2">
+              Sektör
+              {sectors.length > 0 && (
+                <span className="ml-2 text-primary-500">({sectors.length} seçili)</span>
+              )}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {SECTORS.map((sector) => {
+                const selected = sectors.includes(sector)
+                return (
+                  <button
+                    key={sector}
+                    onClick={() => toggleSector(sector)}
+                    className={cn(
+                      'px-3 py-1.5 rounded-xl text-xs font-medium border transition-all',
+                      selected
+                        ? 'border-violet-500/60 bg-violet-600/20 text-violet-200'
+                        : 'border-primary-800/40 text-primary-500 hover:border-primary-700/60 hover:text-primary-300'
+                    )}
+                  >
+                    {selected && <Check size={9} className="inline mr-1" />}
+                    {sector}
+                  </button>
+                )
+              })}
             </div>
-            <div>
-              <label className="block text-xs font-medium text-primary-300 mb-1.5">Durum</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as ProjectStatus)}
-                className="w-full bg-primary-900/60 border border-primary-700/50 text-primary-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500 transition-colors"
-              >
-                {STATUS_OPTIONS.map((s) => (
-                  <option key={s.value} value={s.value} className="bg-primary-900">{s.label}</option>
-                ))}
-              </select>
-            </div>
+          </div>
+
+          {/* Durum */}
+          <div>
+            <label className="block text-xs font-medium text-primary-300 mb-1.5">Durum</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as ProjectStatus)}
+              className="w-full bg-primary-900/60 border border-primary-700/50 text-primary-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500 transition-colors"
+            >
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s.value} value={s.value} className="bg-primary-900">{s.label}</option>
+              ))}
+            </select>
           </div>
 
           {/* Açıklama */}
@@ -199,7 +205,7 @@ export const ProjectModal = () => {
             label="Açıklama"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Proje hakkında kısa açıklama..."
+            placeholder="Proje kapsamı, hedefler..."
             rows={2}
           />
 
@@ -288,11 +294,9 @@ export const ProjectModal = () => {
             </div>
           )}
 
-          {/* Atanmış Danışmanlar (tümü) */}
+          {/* Tüm Danışmanlar */}
           <div>
-            <label className="block text-xs font-medium text-primary-300 mb-2">
-              Tüm Danışmanlardan Ekle
-            </label>
+            <label className="block text-xs font-medium text-primary-300 mb-2">Danışman Ata</label>
             <div className="flex flex-wrap gap-2">
               {consultants.filter((c) => c.isActive).map((c) => {
                 const assigned = assignedIds.includes(c.id)
@@ -320,10 +324,7 @@ export const ProjectModal = () => {
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-primary-800/40 sticky bottom-0 bg-primary-950">
-          <button
-            onClick={closeProjectModal}
-            className="px-4 py-2 text-sm text-primary-400 hover:text-primary-200 transition-colors"
-          >
+          <button onClick={closeProjectModal} className="px-4 py-2 text-sm text-primary-400 hover:text-primary-200 transition-colors">
             İptal
           </button>
           <Button onClick={handleSave}>

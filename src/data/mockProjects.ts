@@ -3,9 +3,9 @@ import { Project } from '../types/project'
 export const mockProjects: Project[] = [
   {
     id: 'pr1',
-    name: 'S/4HANA Migration',
-    clientId: 'cl1', // Arçelik A.Ş.
-    description: 'Arçelik A.Ş. için SAP ECC sisteminin S/4HANA\'ya geçiş projesi. Finans, satın alma ve üretim modülleri kapsanmaktadır.',
+    name: 'Arçelik A.Ş.',
+    sectors: ['Üretim', 'Otomotiv'],
+    description: 'SAP ECC sisteminin S/4HANA\'ya geçiş projesi. Finans, satın alma ve üretim modülleri kapsanmaktadır.',
     status: 'active',
     startDate: '2026-01-15',
     endDate: '2026-09-30',
@@ -16,9 +16,9 @@ export const mockProjects: Project[] = [
   },
   {
     id: 'pr2',
-    name: 'CRM & SD Entegrasyonu',
-    clientId: 'cl3', // Türk Telekom
-    description: 'Türk Telekom\'un müşteri yönetim süreçlerinin SAP SD ve Fiori arayüzleriyle modernizasyonu.',
+    name: 'Türk Telekom',
+    sectors: ['Telekomünikasyon'],
+    description: 'Müşteri yönetim süreçlerinin SAP SD ve Fiori arayüzleriyle modernizasyonu.',
     status: 'active',
     startDate: '2026-02-01',
     endDate: '2026-07-31',
@@ -29,9 +29,9 @@ export const mockProjects: Project[] = [
   },
   {
     id: 'pr3',
-    name: 'EWM Depo Yönetimi',
-    clientId: 'cl4', // Migros
-    description: 'Migros lojistik operasyonları için SAP Extended Warehouse Management kurulumu ve optimizasyonu.',
+    name: 'Migros',
+    sectors: ['Perakende', 'Lojistik'],
+    description: 'Lojistik operasyonları için SAP Extended Warehouse Management kurulumu ve optimizasyonu.',
     status: 'active',
     startDate: '2026-03-01',
     endDate: '2026-08-15',
@@ -42,9 +42,9 @@ export const mockProjects: Project[] = [
   },
   {
     id: 'pr4',
-    name: 'HR Modernizasyonu',
-    clientId: 'cl2', // Koç Holding
-    description: 'Koç Holding İK süreçlerinin SuccessFactors ile entegrasyonu ve bordro süreçlerinin yeniden yapılandırılması.',
+    name: 'Koç Holding',
+    sectors: ['Holding'],
+    description: 'İK süreçlerinin SuccessFactors ile entegrasyonu ve bordro süreçlerinin yeniden yapılandırılması.',
     status: 'planned',
     startDate: '2026-05-01',
     endDate: '2026-12-31',
@@ -55,8 +55,8 @@ export const mockProjects: Project[] = [
   },
   {
     id: 'pr5',
-    name: 'BTP Platform Geliştirme',
-    clientId: 'cl5', // İç Proje
+    name: 'BTP Platform',
+    sectors: [],
     description: 'Şirket içi SAP BTP altyapısının kurulumu, ABAP OO geliştirmeleri ve iç süreç otomasyonları.',
     status: 'on-hold',
     startDate: '2026-04-01',
